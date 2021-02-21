@@ -1,0 +1,134 @@
+ @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        if (ContextCompat.checkSelfPermission(DriverMapActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(DriverMapActivity.this, "You have already granted Access To Fine Location", Toast.LENGTH_SHORT).show();
+
+        } else {
+            requestAccessFineLocation();
+        }
+        if (ContextCompat.checkSelfPermission(DriverMapActivity.this,
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(DriverMapActivity.this, "You have already granted Access to Coarse Location", Toast.LENGTH_SHORT).show();
+
+        } else {
+            requestAccessCoarseLocation();
+        }
+
+        if (ContextCompat.checkSelfPermission(DriverMapActivity.this,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(DriverMapActivity.this, "You have already granted Access to Background Location", Toast.LENGTH_SHORT).show();
+
+        } else {
+            requestAccessBackgroundLocation();
+        }
+
+        buildGoogleApiClient();
+        mMap.setMyLocationEnabled(true);
+    }
+
+        private void requestAccessFineLocation(){
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
+
+                new AlertDialog.Builder(this)
+                        .setTitle("Permission needed")
+                        .setMessage("This Permission is needed to follow the drivers location")
+                        .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.Q)
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                ActivityCompat.requestPermissions(DriverMapActivity.this, new String[]{ Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                            }
+                        })
+                        .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .create().show();
+
+            }
+            else{
+                ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            }
+        }
+
+    private void requestAccessBackgroundLocation(){
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Permission needed")
+                    .setMessage("This Permission is needed to follow the drivers location")
+                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                        @RequiresApi(api = Build.VERSION_CODES.Q)
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            ActivityCompat.requestPermissions(DriverMapActivity.this, new String[]{ Manifest.permission.ACCESS_BACKGROUND_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_BACKGROUND_LOCATION);
+                        }
+                    })
+                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .create().show();
+
+        }
+        else{
+            ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.ACCESS_BACKGROUND_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_BACKGROUND_LOCATION);
+        }
+    }
+
+    private void requestAccessCoarseLocation(){
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)){
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Permission needed")
+                    .setMessage("This Permission is needed to follow the drivers location")
+                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            ActivityCompat.requestPermissions(DriverMapActivity.this, new String[]{ Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
+                        }
+                    })
+                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .create().show();
+
+        }
+        else{
+            ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[]grantResults){
+        if (requestCode == MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION && requestCode == MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION && requestCode == MY_PERMISSIONS_REQUEST_ACCESS_BACKGROUND_LOCATION) {
+            if (grantResults.length > 0  && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+
+    protected  synchronized  void buildGoogleApiClient(){
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
